@@ -1,0 +1,12 @@
+{
+  "crop_name": "capsicum",
+  "growth_stage": "fruiting",
+  "preferred_temperature": {"min": 22, "max": 30},
+  "preferred_humidity": {"min": 60, "max": 75},
+  "soil_moisture_target": 50.0,
+  "critical_soil_moisture": 22.0,
+  "irrigation": {"recommended_minutes": 12, "max_minutes": 70},
+  "climate": {"ventilation": true},
+  "ndvi_thresholds": {"low": 0.2, "high": 0.8},
+  "notes": "Example demo values; not authoritative agronomic recommendations."
+}

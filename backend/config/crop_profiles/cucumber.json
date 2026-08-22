@@ -1,0 +1,12 @@
+{
+  "crop_name": "cucumber",
+  "growth_stage": "flowering",
+  "preferred_temperature": {"min": 20, "max": 28},
+  "preferred_humidity": {"min": 65, "max": 85},
+  "soil_moisture_target": 60.0,
+  "critical_soil_moisture": 25.0,
+  "irrigation": {"recommended_minutes": 8, "max_minutes": 45},
+  "climate": {"ventilation": true},
+  "ndvi_thresholds": {"low": 0.25, "high": 0.85},
+  "notes": "Example demo values; not authoritative agronomic recommendations."
+}
