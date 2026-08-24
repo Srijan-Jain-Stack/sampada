@@ -1,0 +1,34 @@
+[
+  {
+    "zone_id": "Z1",
+    "battery_capacity_wh": 10000,
+    "battery_min_pct": 10.0,
+    "battery_conserve_pct": 30.0,
+    "battery_critical_pct": 20.0,
+    "battery_emergency_pct": 10.0,
+    "solar_capacity_watts": 3000,
+    "inverter_max_watts": 3000,
+    "inverter_efficiency": 0.92,
+    "emergency_reserve_wh": 1000,
+    "grid_tie": true,
+    "default_conservation_action": "REDUCE_CLIMATE_LOAD",
+    "source": "SAMPADA Z1 greenhouse - 10kWh LiFePO4, 3kW solar",
+    "verified": true
+  },
+  {
+    "zone_id": "Z2",
+    "battery_capacity_wh": 5000,
+    "battery_min_pct": 15.0,
+    "battery_conserve_pct": 35.0,
+    "battery_critical_pct": 20.0,
+    "battery_emergency_pct": 10.0,
+    "solar_capacity_watts": 1500,
+    "inverter_max_watts": 2000,
+    "inverter_efficiency": 0.90,
+    "emergency_reserve_wh": 750,
+    "grid_tie": true,
+    "default_conservation_action": "REDUCE_IRRIGATION_LOAD",
+    "source": "SAMPADA Z2 greenhouse - 5kWh LiFePO4, 1.5kW solar",
+    "verified": true
+  }
+]
