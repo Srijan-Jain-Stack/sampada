@@ -1,9 +1,8 @@
 from fastapi import APIRouter
-from backend.schemas.decision import DecisionResponse
+from backend.services.runtime import runtime
 
 router = APIRouter()
 
-@router.get("/decisions", response_model=DecisionResponse)
+@router.get("/decisions")
 async def list_decisions():
-    # TODO: return recent decisions
-    return DecisionResponse(message="stub")
+    return {"decisions": runtime.coordinator.decisions[-50:]}

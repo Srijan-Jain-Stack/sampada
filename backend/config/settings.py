@@ -1,6 +1,5 @@
-"""Application settings (pydantic based)
-"""
-from pydantic import BaseSettings
+"""Application settings loaded from ``.env`` using Pydantic 2 settings."""
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     mqtt_broker: str = "localhost"
@@ -11,7 +10,6 @@ class Settings(BaseSettings):
     safety_max_irrigation_minutes: int = 60
     safety_min_battery_level: float = 10.0
 
-    class Config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(env_file=".env")
 
 settings = Settings()

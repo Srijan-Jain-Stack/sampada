@@ -3,6 +3,7 @@ from backend.services.runtime import runtime
 
 router = APIRouter()
 
-@router.get("/dashboard")
-async def get_dashboard():
-    return runtime.dashboard()
+
+@router.get("/impact")
+async def get_impact():
+    return runtime.impact

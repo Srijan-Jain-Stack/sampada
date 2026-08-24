@@ -7,7 +7,7 @@ import json
 import time
 from datetime import datetime
 
-from crop_agent import CropAgent, CropInput
+from .crop_agent import CropAgent, CropInput
 
 
 def main() -> None:

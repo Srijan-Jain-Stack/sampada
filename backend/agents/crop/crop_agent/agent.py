@@ -19,6 +19,27 @@ class CropAgent:
         self.history: dict[str, deque[Reading]] = defaultdict(lambda: deque(maxlen=12))
         self.outcomes: dict[str, Outcome] = {}
 
+    def generate_bid(self, sensor_state: dict) -> CropDecision:
+        """Compatibility entry point for the shared MQTT/simulator payload.
+
+        The richer public API remains :meth:`evaluate`; this adapter lets the
+        coordinator and the original simulator pass their standard flat sensor JSON
+        without knowing CropInput's crop-specific field names.
+        """
+        crop_type = sensor_state.get("crop_type", sensor_state.get("crop", "tomato"))
+        default_stage = "vegetative" if crop_type.lower() == "cucumber" else "flowering"
+        soil = sensor_state.get("soil_moisture_pct", sensor_state.get("soil_moisture", 60.0))
+        return self.evaluate(CropInput(
+            zone_id=sensor_state.get("zone_id", "Z1"),
+            crop_type=crop_type,
+            growth_stage=sensor_state.get("growth_stage", default_stage),
+            substrate=sensor_state.get("substrate", "soil"),
+            soil_moisture_pct=soil,
+            wilting_score=sensor_state.get("wilting_score"),
+            ndvi=sensor_state.get("ndvi"),
+            ndvi_trend=sensor_state.get("ndvi_trend"),
+        ))
+
     def record_irrigation_outcome(self, zone_id: str, before_moisture: float, after_moisture: float, before_wilting: float | None = None, after_wilting: float | None = None):
         """Call only after a Coordinator-approved irrigation action has been observed."""
         self.outcomes[zone_id] = Outcome(before_moisture, after_moisture, before_wilting, after_wilting)
@@ -47,7 +68,7 @@ class CropAgent:
         if data.soil_moisture_pct is not None: reason += f" Soil moisture is {data.soil_moisture_pct:.1f}% (calibrated target {profile.optimal_min}-{profile.optimal_max}%)."
         if critical: reason += " It is at or below the critical moisture floor."
         if health != "healthy": reason += f" Sensor health is {health}; verify inputs."
-        return CropDecision(agent="crop", zone_id=data.zone_id, priority=round(stress/100,3), bid=round(stress/100,3), recommended_action=action, duration_minutes=duration, reason=reason, confidence=round(confidence,3), resource_demand={"water_litres":0.0,"power_watts":0.0}, stress_score=round(stress,1), stress_level=level, signal_breakdown={k:round(v,1) for k,v in signals.items()}, signal_quality=quality, data_freshness_minutes=fresh, sensor_health=health, profile_source=profile.source, profile_verified=True, alerts=alerts, moisture_decline_pct_per_hour=round(decline,2) if decline is not None else None, hours_below_critical=round(hours_critical,2), recovery_status=recovery)
+        return CropDecision(agent="crop", zone_id=data.zone_id, priority=round(stress/100,3), bid=round(stress/100,3), recommended_action=action, duration_minutes=duration, reason=reason, confidence=round(confidence,3), resource_demand={"water_litres":0.0,"power_watts":0.0}, soil_moisture_pct=data.soil_moisture_pct, stress_score=round(stress,1), stress_level=level, signal_breakdown={k:round(v,1) for k,v in signals.items()}, signal_quality=quality, data_freshness_minutes=fresh, sensor_health=health, profile_source=profile.source, profile_verified=True, alerts=alerts, moisture_decline_pct_per_hour=round(decline,2) if decline is not None else None, hours_below_critical=round(hours_critical,2), recovery_status=recovery)
 
     def _needs_profile(self, data, profile):
         return CropDecision(agent="crop", zone_id=data.zone_id, priority=0, bid=0, recommended_action="PROFILE_CONFIGURATION_REQUIRED", duration_minutes=0, reason=f"No verified profile exists for {data.crop_type}/{data.growth_stage}/{data.substrate}; load a reviewed FAO-style profile and locally calibrated thresholds.", confidence=0, resource_demand={"water_litres":0.0,"power_watts":0.0}, stress_score=0, stress_level="unknown", signal_breakdown={}, signal_quality={}, data_freshness_minutes={}, sensor_health="insufficient", profile_source=profile.source if profile else "none", profile_verified=False, alerts=["Crop profile must be reviewed and locally calibrated."])

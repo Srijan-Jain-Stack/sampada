@@ -33,6 +33,9 @@ class CropDecision(BaseModel):
     reason: str
     confidence: float = Field(ge=0, le=1)
     resource_demand: dict[str, float]
+    # Carries the calibrated source value to resource agents; it is not an
+    # actuator command and the Coordinator still validates every final action.
+    soil_moisture_pct: float | None = Field(default=None, ge=0, le=100)
     stress_score: float = Field(ge=0, le=100)
     stress_level: Literal["normal", "watch", "high", "critical", "unknown"]
     signal_breakdown: dict[str, float]

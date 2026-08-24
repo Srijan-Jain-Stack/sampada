@@ -3,5 +3,10 @@
 
 class LessonGenerator:
     def generate(self, event):
-        # TODO
-        return {"lesson": "stub"}
+        """Create a compact, non-identifying candidate lesson from an outcome."""
+        return {
+            "context": event.get("context", {}),
+            "action": event.get("action", {}),
+            "outcome": event.get("outcome", {}),
+            "validated_by": 0,
+        }

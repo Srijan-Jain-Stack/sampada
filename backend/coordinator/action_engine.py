@@ -6,7 +6,8 @@ class ActionEngine:
     def __init__(self, publisher: MQTTPublisher):
         self.publisher = publisher
 
-    def execute(self, action):
-        # TODO: transform action into actuator MQTT messages
-        self.publisher.publish_action(action)
-        return {"status": "published"}
+    def execute(self, action, decision=None):
+        result = self.publisher.publish_action(action)
+        if decision is not None:
+            self.publisher.publish_decision(decision)
+        return {"status": "published" if result["published"] else "failed", **result}

@@ -10,8 +10,8 @@ class MQTTClient:
         self.broker = settings.mqtt_broker
 
     def connect(self):
-        # TODO: handle connect
-        self.client.connect(self.broker, settings.mqtt_port)
+        self.client.connect(self.broker, settings.mqtt_port, settings.mqtt_keepalive)
+        return self.client
 
     def loop_start(self):
         self.client.loop_start()

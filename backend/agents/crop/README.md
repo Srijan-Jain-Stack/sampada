@@ -45,7 +45,7 @@ python -m unittest discover -s tests -v
 Run a continuously updating sensor simulation with:
 
 ```powershell
-python live_demo.py
+python -m backend.agents.crop.live_demo
 ```
 
 It cycles through healthy, drying, critical and recovery states every ten seconds. Stop it with `Ctrl+C`. In the full system, replace the simulated input block with MQTT messages from `sampada/sensors/Z1`.
