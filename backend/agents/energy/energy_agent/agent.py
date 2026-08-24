@@ -273,5 +273,14 @@ class EnergyAgent:
         return "healthy"
 
     def generate_bid(self, sensor_state: dict) -> EnergyDecision:
-        input_data = EnergyInput(**sensor_state, observed_at=datetime.now())
+        # Normalize shared simulator/MQTT names and make missing telemetry a
+        # conservative, non-actuating baseline rather than a validation crash.
+        payload = {
+            "zone_id": sensor_state.get("zone_id", "Z1"),
+            "battery_pct": sensor_state.get("battery_pct", sensor_state.get("battery", 50.0)),
+            "solar_watts": sensor_state.get("solar_watts", sensor_state.get("solar_power", 0.0)),
+            "load_watts": sensor_state.get("load_watts", 250.0),
+            "grid_available": sensor_state.get("grid_available", True),
+        }
+        input_data = EnergyInput(**payload, observed_at=datetime.now())
         return self.evaluate(input_data)

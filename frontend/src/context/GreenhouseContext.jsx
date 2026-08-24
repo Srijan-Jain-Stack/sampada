@@ -20,7 +20,7 @@ import {
   initialSystemStatus
 } from '../data/mockData';
 import { DEMO_SCENARIOS } from '../data/demoScenarios';
-import { sampadaAPI } from '../api/sampadaAPI';
+import { sampadaAPI, normalizeDashboard } from '../api/sampadaAPI';
 import { useWebSocket } from '../hooks/useWebSocket';
 
 const GreenhouseContext = createContext(null);
@@ -60,6 +60,21 @@ export function GreenhouseProvider({ children }) {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
+  const [dataSource, setDataSource] = useState('connecting');
+
+  const applyDashboard = useCallback((data) => {
+    const dashboard = normalizeDashboard(data);
+    if (!dashboard) return;
+    if (dashboard.metrics) setMetrics(dashboard.metrics);
+    if (dashboard.zones) setZones(dashboard.zones);
+    if (dashboard.agents) setAgents(dashboard.agents);
+    if (dashboard.decision) setDecision(dashboard.decision);
+    if (dashboard.resources) setResources(dashboard.resources);
+    if (dashboard.weather) setWeather(dashboard.weather);
+    if (dashboard.sensorValidation) setSensorValidation(dashboard.sensorValidation);
+    if (dashboard.safetyState) setSafetyState(dashboard.safetyState);
+    if (dashboard.impact) setImpactMetrics(dashboard.impact);
+  }, []);
 
   // 3. Demo Engine State (9-Step Interactive Showcase)
   const [demoModalOpen, setDemoModalOpen] = useState(false);
@@ -75,7 +90,9 @@ export function GreenhouseProvider({ children }) {
   const handleWsMessage = useCallback((msg) => {
     if (!msg) return;
 
-    if (msg.type === 'TELEMETRY_PULSE') {
+    if (msg.type === 'DASHBOARD_UPDATE') {
+      applyDashboard(msg.data);
+    } else if (msg.type === 'TELEMETRY_PULSE') {
       // Dynamic tiny jitter for live feel
       setZones(prev => prev.map(z => {
         if (z.id === 'zone-2') {
@@ -98,7 +115,7 @@ export function GreenhouseProvider({ children }) {
     } else if (msg.type === 'ALERT_NEW') {
       setAlerts(prev => [msg.data, ...prev]);
     }
-  }, []);
+  }, [applyDashboard]);
 
   const ws = useWebSocket({ onMessage: handleWsMessage });
 
@@ -108,23 +125,17 @@ export function GreenhouseProvider({ children }) {
     try {
       const res = await sampadaAPI.getDashboard();
       if (res.data) {
-        if (res.data.metrics) setMetrics(res.data.metrics);
-        if (res.data.zones) setZones(res.data.zones);
-        if (res.data.agents) setAgents(res.data.agents);
-        if (res.data.decision) setDecision(res.data.decision);
-        if (res.data.resources) setResources(res.data.resources);
-        if (res.data.weather) setWeather(res.data.weather);
-        if (res.data.sensorValidation) setSensorValidation(res.data.sensorValidation);
-        if (res.data.safetyState) setSafetyState(res.data.safetyState);
-        if (res.data.impact) setImpactMetrics(res.data.impact);
+        applyDashboard(res.data);
+        setDataSource(res.isMock ? 'mock' : (res.data.data_source || 'backend'));
       }
       setApiError(null);
     } catch (err) {
       setApiError(err.message);
+      setDataSource('unavailable');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [applyDashboard]);
 
   useEffect(() => {
     fetchAllData();
@@ -261,11 +272,15 @@ export function GreenhouseProvider({ children }) {
     applyScenarioState(activeScenario, 1);
   };
 
-  const openDemoModal = (scenarioId) => {
+  const openDemoModal = async (scenarioId) => {
     if (scenarioId) {
       selectScenario(scenarioId);
     }
     setDemoModalOpen(true);
+    // The local stepper remains available offline, while an online run invokes
+    // the real simulator, all four agents, and the Coordinator.
+    const result = await sampadaAPI.triggerDemoScenario(scenarioId);
+    if (result.dashboard) applyDashboard(result.dashboard);
   };
 
   const closeDemoModal = () => {
@@ -327,6 +342,7 @@ export function GreenhouseProvider({ children }) {
     liveEvents,
     isLoading,
     apiError,
+    dataSource,
     refreshData: fetchAllData,
     dismissAlert,
 

@@ -5,6 +5,7 @@ import { ArrowRight, Bot, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-rea
 
 export default function AgentNegotiation() {
   const { agents, decision } = useGreenhouse();
+  const safetyApproved = decision?.safetyCheck?.status === 'APPROVED';
 
   return (
     <div className="space-y-6">
@@ -93,24 +94,24 @@ export default function AgentNegotiation() {
               <div className="space-y-1 text-xs pt-1">
                 <div className="flex items-center justify-between text-[11px] text-slate-700 py-0.5">
                   <span>Tank Water Limit</span>
-                  <span className="text-emerald-700 font-bold">✓ Pass</span>
+                  <span className={safetyApproved ? 'text-emerald-700 font-bold' : 'text-amber-700 font-bold'}>{safetyApproved ? '✓ Pass' : 'Review'}</span>
                 </div>
                 <div className="flex items-center justify-between text-[11px] text-slate-700 py-0.5">
                   <span>Battery Cut-off Buffer</span>
-                  <span className="text-emerald-700 font-bold">✓ Pass</span>
+                  <span className={safetyApproved ? 'text-emerald-700 font-bold' : 'text-amber-700 font-bold'}>{safetyApproved ? '✓ Pass' : 'Review'}</span>
                 </div>
                 <div className="flex items-center justify-between text-[11px] text-slate-700 py-0.5">
                   <span>Rain Suppression Check</span>
-                  <span className="text-emerald-700 font-bold">✓ Pass</span>
+                  <span className={safetyApproved ? 'text-emerald-700 font-bold' : 'text-amber-700 font-bold'}>{safetyApproved ? '✓ Pass' : 'Review'}</span>
                 </div>
                 <div className="flex items-center justify-between text-[11px] text-slate-700 py-0.5">
                   <span>Actuator Thermal Safe</span>
-                  <span className="text-emerald-700 font-bold">✓ Pass</span>
+                  <span className={safetyApproved ? 'text-emerald-700 font-bold' : 'text-amber-700 font-bold'}>{safetyApproved ? '✓ Pass' : 'Review'}</span>
                 </div>
               </div>
             </div>
             <span className="text-[10px] text-slate-700 font-semibold pt-2 border-t border-slate-100">
-              Status: 4/4 Checks Passed
+              Status: {safetyApproved ? 'Approved by Safety Gate' : 'Restricted by Safety Gate'}
             </span>
           </div>
 
@@ -125,7 +126,7 @@ export default function AgentNegotiation() {
                   </h4>
                 </div>
                 <span className="text-[10px] font-bold text-emerald-400">
-                  Dispatched
+                  {safetyApproved ? 'Dispatched' : 'Held'}
                 </span>
               </div>
 

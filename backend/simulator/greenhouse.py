@@ -14,19 +14,15 @@ class Greenhouse:
         }
 
     def sample_state(self, zone_id: str) -> Dict:
-        # deterministic but varied
-        base = random.Random(self.seed + int(zone_id[-1]))
-        state = {
-            'zone_id': zone_id,
-            'soil_moisture': round(base.uniform(10, 80), 2),
-            'temperature': round(base.uniform(18, 35), 2),
-            'humidity': round(base.uniform(30, 90), 2),
-            'battery': round(base.uniform(20, 100), 2),
-            'solar_power': round(base.uniform(0, 1000), 2),
-            'tank_level': round(base.uniform(5, 100), 2),
-            'rain_expected': base.choice([True, False])
+        # A realistic, stable starting point for the dashboard.  Scenario
+        # overrides create stress deliberately; the normal view should not
+        # randomly put every greenhouse zone into an emergency.
+        states = {
+            'Z1': {'soil_moisture': 68.0, 'temperature': 24.5, 'humidity': 65.0, 'battery': 81.0, 'solar_power': 850.0, 'tank_level': 75.0, 'rain_expected': False},
+            'Z2': {'soil_moisture': 58.0, 'temperature': 26.0, 'humidity': 68.0, 'battery': 72.0, 'solar_power': 720.0, 'tank_level': 75.0, 'rain_expected': False},
+            'Z3': {'soil_moisture': 58.0, 'temperature': 26.0, 'humidity': 67.0, 'battery': 70.0, 'solar_power': 700.0, 'tank_level': 75.0, 'rain_expected': False},
         }
-        return state
+        return {'zone_id': zone_id, **states[zone_id]}
 
     def run_demo(self):
         print("Running simulator demo for zones Z1..Z3")

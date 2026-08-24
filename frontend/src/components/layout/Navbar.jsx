@@ -14,6 +14,7 @@ export default function Navbar({ onToggleMobileMenu, mobileMenuOpen }) {
     isFarmerView, 
     toggleViewMode, 
     isWsLive, 
+    dataSource,
     demo 
   } = useGreenhouse();
 
@@ -59,7 +60,7 @@ export default function Navbar({ onToggleMobileMenu, mobileMenuOpen }) {
         <div className="hidden sm:flex items-center gap-4 text-xs text-slate-500 font-medium">
           <div className="flex items-center gap-1.5">
             <span className={`w-2 h-2 rounded-full ${isWsLive ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-            <span>{isWsLive ? 'Live System' : 'Simulated'}</span>
+            <span>{isWsLive ? (dataSource === 'simulator' ? 'Backend Simulator' : 'Live Backend') : 'Backend Offline'}</span>
           </div>
           <span className="text-slate-300">•</span>
           <span>{currentTime}</span>

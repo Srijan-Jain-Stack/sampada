@@ -92,8 +92,8 @@ export default function OverviewPage() {
             title="Safety Gate"
             value={metrics.safetyStatus?.value}
             unit=""
-            status="All Safe"
-            subtext="4/4 Passed"
+            status={metrics.safetyStatus?.status}
+            subtext={`${(metrics.safetyStatus?.totalChecks || 0) - (metrics.safetyStatus?.failedChecks || 0)}/${metrics.safetyStatus?.totalChecks || 0} Passed`}
           />
         </div>
 

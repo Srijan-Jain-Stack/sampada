@@ -11,6 +11,7 @@ ACTION_ALIASES = {
     "WAIT": "MONITOR",
     "NO_ACTION": "MONITOR",
     "COOL": "FAN_ON",
+    "FAN": "FAN_ON",
     "MIST": "MIST_ON",
     "REDUCE_LOAD": "REDUCE_LOAD",
     "MONITOR": "MONITOR",

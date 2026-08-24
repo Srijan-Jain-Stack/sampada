@@ -1,34 +1,70 @@
 # SAMPADA
 
-Smart Adaptive Multi-Agent Platform for Agricultural Decision Assistance (initial scaffold)
+Smart Adaptive Multi-Agent Platform for Agricultural Decision Assistance. The React dashboard consumes the FastAPI service only; the backend runs the simulator, Crop, Irrigation, Climate, and Energy agents, then sends every bid through the Coordinator and safety guard.
 
-This repository contains the initial architecture and scaffolding for SAMPADA. It provides a multi-agent greenhouse decision-support system with simulated sensors, agents, a coordinator, and a React frontend. This scaffold is intended to let 6 developers work independently on well-defined interfaces.
+## Run the complete application (Windows PowerShell)
 
-See docs/ for architecture, API contracts, MQTT topics, and development workflow.
+Prerequisites: Node.js 18+ and Python 3.13 (or Python 3.11+) from [python.org](https://www.python.org/downloads/windows/) with **Add Python to PATH** selected.
 
-Setup (backend):
+1. From the repository root, recreate the virtual environment if one already exists but is unusable:
 
-1. Create and activate a Python 3.11+ venv
+   ```powershell
+   py -3.13 -m venv venv
+   .\venv\Scripts\Activate.ps1
+   python -m pip install --upgrade pip setuptools wheel
+   pip install --upgrade --prefer-binary --no-cache-dir -r requirements.txt
+   ```
 
-   python -m venv .venv
-   source .venv/bin/activate  # macOS / Linux
-   .venv\Scripts\activate     # Windows (PowerShell)
+2. Start the FastAPI backend in terminal 1:
 
-2. Install dependencies
+   ```powershell
+   cd "C:\Users\parth\OneDrive\Desktop\New folder\sampada"
+   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+   .\venv\Scripts\Activate.ps1
+   python -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8010
+   ```
 
-   pip install -r requirements.txt
+3. In terminal 2, start the frontend:
 
-3. Run the backend (development)
+   ```powershell
+      cd "C:\Users\parth\OneDrive\Desktop\New folder\sampada"
+      @"
+      VITE_API_URL=http://localhost:8010
+      VITE_WS_URL=ws://localhost:8010/ws
+      "@ | Set-Content frontend\.env
 
-   .\.venv\Scripts\python.exe -m uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+      cd frontend
+      npm run dev
+   ```
 
-4. Run simulator (in another terminal)
+4. Open `http://localhost:3000`, click **Run Demo**, then choose a scenario. The dashboard will trigger `POST /api/demo/cycle`; all four agents bid for each simulator zone, the Coordinator chooses a winner, and the WebSocket refreshes the displayed dashboard.
 
-   python -m backend.simulator.sensor_simulator
+Optional frontend environment file, `frontend/.env`:
 
-Frontend (see frontend/README.md)
+```env
+VITE_API_URL=http://localhost:8000
+VITE_WS_URL=ws://localhost:8000/ws
+```
 
-Running tests
+## Verify the integration
 
-    pytest -q
+With the backend running, use a third PowerShell terminal:
 
+```powershell
+Invoke-RestMethod http://localhost:8000/health
+$result = Invoke-RestMethod -Method Post http://localhost:8000/api/demo/cycle -ContentType 'application/json' -Body '{}'
+$result.decisions | Select-Object zone_id, allowed, reason
+Invoke-RestMethod http://localhost:8000/api/dashboard
+```
+
+Expected result: `/health` returns `status: ok`; the demo produces three zone decisions; `/api/dashboard` contains sensor states, four sets of agent bids, and decision history. The frontend navbar changes to **Live System** once its WebSocket connects.
+
+Run automated checks from the root after activating the environment:
+
+```powershell
+python -m pytest -q
+cd frontend
+npm run build
+```
+
+See `docs/` for architecture, contracts, MQTT topics, and development workflow.

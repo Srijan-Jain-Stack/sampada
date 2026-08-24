@@ -7,10 +7,11 @@ router = APIRouter()
 async def websocket_endpoint(websocket: WebSocket):
     """Serve live dashboard snapshots; clients can send ``refresh`` on each cycle."""
     await websocket.accept()
-    await websocket.send_json(runtime.dashboard())
+    runtime.websockets.add(websocket)
+    await websocket.send_json({"type": "DASHBOARD_UPDATE", "data": runtime.dashboard()})
     try:
         while True:
             await websocket.receive_text()
-            await websocket.send_json(runtime.dashboard())
+            await websocket.send_json({"type": "DASHBOARD_UPDATE", "data": runtime.dashboard()})
     except WebSocketDisconnect:
-        pass
+        runtime.websockets.discard(websocket)

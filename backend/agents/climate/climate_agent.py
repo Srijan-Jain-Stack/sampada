@@ -222,15 +222,12 @@ class ClimateAgent:
             "Z1"
         )
 
-        crop_type = sensor_state.get(
-            "crop_type"
-        )
-
-        if not crop_type:
-
-            raise ValueError(
-                "Climate Agent requires crop_type."
-            )
+        # MQTT supplies crop_type, but a minimal coordinator/demo payload may
+        # only identify a zone.  Use the greenhouse's stable zone mapping so
+        # the agent can still return a safe monitoring bid instead of failing.
+        crop_type = sensor_state.get("crop_type") or {
+            "Z1": "tomato", "Z2": "cucumber", "Z3": "capsicum"
+        }.get(str(zone_id).upper(), "tomato")
 
         crop_type = crop_type.lower()
 
@@ -274,21 +271,15 @@ class ClimateAgent:
                 "longitude"
             )
 
-            if latitude is None or longitude is None:
-
-                raise ValueError(
-                    "Latitude and longitude are required "
-                    "when temperature/humidity are not "
-                    "provided."
-                )
-
-            weather = self.get_weather(
-                latitude,
-                longitude
-            )
-
-            temperature = weather["temperature"]
-            humidity = weather["humidity"]
+            if latitude is not None and longitude is not None:
+                weather = self.get_weather(latitude, longitude)
+                temperature = weather["temperature"]
+                humidity = weather["humidity"]
+            else:
+                # No network call or invented emergency action when telemetry
+                # is absent: use the profile midpoint and emit MONITOR.
+                temperature = (profile["preferred_temperature"]["min"] + profile["preferred_temperature"]["max"]) / 2
+                humidity = (profile["preferred_humidity"]["min"] + profile["preferred_humidity"]["max"]) / 2
 
         temperature = float(temperature)
         humidity = float(humidity)

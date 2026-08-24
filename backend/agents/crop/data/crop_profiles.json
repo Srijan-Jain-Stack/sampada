@@ -1,4 +1,5 @@
 [
   {"crop_type":"tomato","growth_stage":"flowering","substrate":"soil","optimal_min":65,"optimal_max":78,"critical_min":50,"kc_initial":0.6,"kc_mid":1.15,"kc_end":0.8,"root_depth_m":0.7,"depletion_fraction":0.4,"default_duration_minutes":6,"source":"FAO-56/CROPWAT baseline; local soil calibration required","verified":true},
-  {"crop_type":"cucumber","growth_stage":"vegetative","substrate":"soil","optimal_min":65,"optimal_max":80,"critical_min":52,"kc_initial":0.6,"kc_mid":1.0,"kc_end":0.75,"root_depth_m":0.6,"depletion_fraction":0.35,"default_duration_minutes":6,"source":"FAO-56/CROPWAT baseline; local soil calibration required","verified":true}
+  {"crop_type":"cucumber","growth_stage":"vegetative","substrate":"soil","optimal_min":65,"optimal_max":80,"critical_min":52,"kc_initial":0.6,"kc_mid":1.0,"kc_end":0.75,"root_depth_m":0.6,"depletion_fraction":0.35,"default_duration_minutes":6,"source":"FAO-56/CROPWAT baseline; local soil calibration required","verified":true},
+  {"crop_type":"capsicum","growth_stage":"flowering","substrate":"soil","optimal_min":55,"optimal_max":72,"critical_min":40,"kc_initial":0.6,"kc_mid":1.05,"kc_end":0.8,"root_depth_m":0.55,"depletion_fraction":0.4,"default_duration_minutes":6,"source":"SAMPADA baseline; local soil calibration required","verified":true}
 ]
